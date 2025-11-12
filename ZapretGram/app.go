@@ -1,6 +1,8 @@
 package main
 
 import (
+	"ZapretGram/backend/Core/Tools"
+	"ZapretGram/backend/Core/ethernet"
 	"ZapretGram/backend/conf"
 	"context"
 	"log"
@@ -10,6 +12,7 @@ import (
 type App struct {
 	ctx context.Context
 	cfg *conf.Config
+
 	// Добавь другие зависимости (TCP клиент, база данных и т.д.)
 }
 
@@ -52,4 +55,23 @@ func (a *App) GetUserInfo(userID int) map[string]interface{} {
 		"id":   userID,
 		"name": "Test User",
 	}
+}
+
+//=======================================================================
+
+func (a *App) ConnectServer(ip string, port string, Pubkey string) bool {
+	err := Tools.Ping(ip, port)
+	if err != nil {
+		return false
+	}
+
+	client, err := ethernet.NewTcpClient(ip, port)
+
+	tcp := ethernet.NewRequest(client, Pubkey)
+
+	if tcp == nil {
+		return false
+	}
+
+	return true
 }

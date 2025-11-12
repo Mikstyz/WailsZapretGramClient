@@ -1,8 +1,8 @@
 package service
 
 import (
-	tools "ZapretGram/backend/internal/Tools"
-	model "ZapretGram/backend/internal/service/Model"
+	tools "ZapretGram/backend/Core/Tools"
+	model "ZapretGram/backend/Core/service/Model"
 	"fmt"
 	"log"
 )

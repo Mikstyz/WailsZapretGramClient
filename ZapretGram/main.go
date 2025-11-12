@@ -42,7 +42,7 @@ func main() {
 			A: 1,
 		},
 		OnStartup:  app.Startup,
-		OnShutdown: app.Shutdown, // Добавляем graceful shutdown
+		OnShutdown: app.Shutdown,
 		Bind: []interface{}{
 			app,
 		},

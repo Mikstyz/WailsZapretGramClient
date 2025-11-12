@@ -1,8 +1,10 @@
 package main
 
 import (
+	"ZapretGram/backend/Core/ethernet"
 	"ZapretGram/backend/conf"
 	"ZapretGram/backend/test"
+	"time"
 
 	"fmt"
 	"log"
@@ -37,11 +39,20 @@ func main() {
 	if mode == "c" {
 		var i int = 0
 
+		client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
+
+		tcp := ethernet.NewRequest(client, "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+
 		for true {
-			//time.Sleep(1 * time.Second)
+			time.Sleep(500 * time.Millisecond)
 			i++
 			fmt.Printf("ping :%d \n", i)
-			test.InServer()
+
+			err := tcp.Auth("slut", "imSLUT", "register")
+
+			if err != nil {
+				fmt.Print("ошибка авторизации")
+			}
 		}
 	}
 }

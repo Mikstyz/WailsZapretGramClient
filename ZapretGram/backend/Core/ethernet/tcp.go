@@ -1,8 +1,8 @@
 package ethernet
 
 import (
-	tools "ZapretGram/backend/internal/Tools"
-	model "ZapretGram/backend/internal/ethernet/Model"
+	tools "ZapretGram/backend/Core/Tools"
+	model "ZapretGram/backend/Core/ethernet/Model"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -12,6 +12,7 @@ import (
 )
 
 type TcpClient struct {
+	//Подключение и рутина
 	Conn net.Conn
 	mu   sync.RWMutex
 
@@ -22,8 +23,12 @@ type TcpClient struct {
 	//сопосост запр-ответ
 	PendingReqs map[string]chan *ServerMessage
 
+	//id and port server
 	IP   string
 	Port string
+
+	//ключ шифрования сервера public
+	key *tools.Pubkey
 }
 
 func NewTcpClient(ip, port string) (*TcpClient, error) {
@@ -119,23 +124,25 @@ func (c *TcpClient) ListenMessages(pubkey *tools.Pubkey) {
 
 			// Обработка по Action
 			switch resp.Action {
+
+			//chat
 			case "chat":
 				var chat model.ResponseChatData
 				dataBytes, _ := json.Marshal(resp.Data)
 				json.Unmarshal(dataBytes, &chat)
 				fmt.Printf("Новое сообщение от %s: %s\n", chat.ChatId, chat.Text)
 
-			case "login":
+			//Успешная авторизация
+			case "auth":
 				var auth model.ResponseAuthData
 				dataBytes, _ := json.Marshal(resp.Data)
 				json.Unmarshal(dataBytes, &auth)
-				fmt.Printf("Пользователь %s успешно вошёл. ID: %s\n", auth.Token)
 
-			case "register":
-				var auth model.ResponseAuthData
-				dataBytes, _ := json.Marshal(resp.Data)
-				json.Unmarshal(dataBytes, &auth)
-				fmt.Printf("Пользователь %s зарегистрирован. ID: %s\n", auth.Token)
+				if !auth.Status {
+					fmt.Printf("не удачный вход на сервер, не верный login or password")
+				}
+				fmt.Printf("успешный вход на сервер. ID: %s\n", auth.Token)
+				fmt.Printf("auth status: %d", auth.Status)
 
 			case "error":
 				var errData model.ResponseErrorData
