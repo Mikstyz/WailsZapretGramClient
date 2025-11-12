@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-//go:embed:../frontend/dist/*
+//go:embed all:frontend/pages all:frontend/css all:frontend/dist
 var assets embed.FS
 
 func main() {
