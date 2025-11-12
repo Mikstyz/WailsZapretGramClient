@@ -1,0 +1,5 @@
+package ethernet
+
+func NewMessage() {
+
+}
