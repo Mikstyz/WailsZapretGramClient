@@ -4,7 +4,6 @@ import (
 	"ZapretGram/backend/Core/ethernet"
 	"ZapretGram/backend/conf"
 	"ZapretGram/backend/test"
-	"time"
 
 	"fmt"
 	"log"
@@ -37,22 +36,40 @@ func main() {
 	}
 
 	if mode == "c" {
-		var i int = 0
+		ip := "26.69.104.210"
+		port := "9000"
+		Pubkey := "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK"
 
-		client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
+		// err := Tools.Ping(ip, port)
+		// if err != nil {
+		// 	log.Print("false")
+		// }
 
-		tcp := ethernet.NewRequest(client, "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+		client, _ := ethernet.NewTcpClient(ip, port)
 
-		for true {
-			time.Sleep(500 * time.Millisecond)
-			i++
-			fmt.Printf("ping :%d \n", i)
+		tcp := ethernet.NewRequest(client, Pubkey)
 
-			err := tcp.Auth("slut", "imSLUT", "register")
+		status := tcp.Tcp.Ping()
 
-			if err != nil {
-				fmt.Print("ошибка авторизации")
-			}
-		}
+		fmt.Print(tcp.Tcp.Key)
+		fmt.Print(status)
+
+		// var i int = 0
+
+		// client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
+
+		// tcp := ethernet.NewRequest(client, "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+
+		// for true {
+		// 	time.Sleep(500 * time.Millisecond)
+		// 	i++
+		// 	fmt.Printf("ping :%d \n", i)
+
+		// 	err := tcp.Auth("slut", "imSLUT", "register")
+
+		// 	if err != nil {
+		// 		fmt.Print("ошибка авторизации")
+		// 	}
+		// }
 	}
 }

@@ -28,7 +28,7 @@ type TcpClient struct {
 	Port string
 
 	//ключ шифрования сервера public
-	key *tools.Pubkey
+	Key *tools.Pubkey
 }
 
 func NewTcpClient(ip, port string) (*TcpClient, error) {
@@ -36,6 +36,7 @@ func NewTcpClient(ip, port string) (*TcpClient, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &TcpClient{
 		Conn: conn,
 		IP:   ip,

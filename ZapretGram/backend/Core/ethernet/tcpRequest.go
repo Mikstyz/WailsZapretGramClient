@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"strconv"
 	"time"
 )
 
@@ -20,7 +21,7 @@ func NewRequest(tcp *TcpClient, key string) *TcpRequest {
 		return nil
 	}
 
-	tcp.key = Tools.NewKey(key)
+	tcp.Key = Tools.NewKey(key)
 
 	var Tcpclient = &TcpRequest{
 		Tcp: tcp,
@@ -61,7 +62,7 @@ func (tcp *TcpClient) readingAnsfer() *model.ResponseTcp {
 	}
 
 	var res model.ResponseTcp
-	if err := tcp.key.DecPublicKey(respBuf, &res); err != nil {
+	if err := tcp.Key.DecPublicKey(respBuf, &res); err != nil {
 		fmt.Printf("Ошибка расшифровки ответа: %v\n", err)
 		return nil
 	}
@@ -87,7 +88,7 @@ func (t *TcpRequest) Auth(log string, pass string, action string) error {
 
 	//Шифруем сообщение
 
-	b, err := t.Tcp.key.EncPublicKey(user)
+	b, err := t.Tcp.Key.EncPublicKey(user)
 
 	fmt.Printf("b: %d", b)
 
@@ -104,4 +105,22 @@ func (t *TcpRequest) Auth(log string, pass string, action string) error {
 	fmt.Printf("res server: %+v\n", res)
 
 	return nil
+}
+
+func (t *TcpClient) Ping() bool {
+	ping := model.RequestTcp{
+		Action: "ping",
+	}
+
+	b, err := t.Key.EncPublicKey(ping)
+	if err != nil {
+		fmt.Errorf("Ошибка шифрования: %v\n", err)
+	}
+	t.sendRequest(b)
+
+	res := t.readingAnsfer()
+
+	fmt.Printf("res server: %+v\n", res)
+	s, _ := strconv.ParseBool(res.Status)
+	return s
 }
