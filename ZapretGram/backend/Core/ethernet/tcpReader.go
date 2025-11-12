@@ -1,7 +1,7 @@
 package ethernet
 
 import (
-	tools "ZapretGram/backend/internal/Tools"
+	tools "ZapretGram/backend/Core/Tools"
 	"bufio"
 	"encoding/binary"
 	"encoding/json"

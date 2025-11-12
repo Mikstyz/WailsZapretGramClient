@@ -14,7 +14,8 @@ type ResponseChatData struct {
 
 // ответ от регестрации или логина
 type ResponseAuthData struct {
-	Token string `json:"token,omitempty"` // token
+	Status bool   `json:"status,omitempty"`
+	Token  string `json:"token,omitempty"` // token
 }
 
 // Ошибка от сервера

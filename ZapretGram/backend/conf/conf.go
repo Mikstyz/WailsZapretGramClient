@@ -1,7 +1,7 @@
 package conf
 
 import (
-	"ZapretGram/backend/internal/service"
+	"ZapretGram/backend/Core/service"
 	"database/sql"
 	"fmt"
 	"log"
@@ -20,8 +20,8 @@ type Config struct {
 // Загрузка env файла
 func envInc() (string, error) {
 	log.Print("[env] loading env file")
-
-	pathenv := filepath.Join("backend", "cmd", "conf.env")
+	return "../storage/server.db", nil
+	pathenv := filepath.Join("ZapretGram", "backend", "conf.env")
 	if err := godotenv.Load(pathenv); err != nil {
 		return "", fmt.Errorf("ошибка загрузки .env: %v", err)
 	}

@@ -1,7 +1,7 @@
 package Tools
 
 import (
-	model "ZapretGram/backend/internal/service/Model"
+	model "ZapretGram/backend/Core/service/Model"
 	"encoding/json"
 	"fmt"
 	"os"

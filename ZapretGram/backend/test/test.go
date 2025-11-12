@@ -1,8 +1,8 @@
 package test
 
 import (
-	tol "ZapretGram/backend/internal/Tools"
-	"ZapretGram/backend/internal/ethernet"
+	tool "ZapretGram/backend/Core/Tools"
+	"ZapretGram/backend/Core/ethernet"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -12,11 +12,11 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	modelE "ZapretGram/backend/internal/ethernet/Model"
+	modelE "ZapretGram/backend/Core/ethernet/Model"
 )
 
 func InServer() {
-	key := tol.NewKey("wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+	key := tool.NewKey("wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
 
 	tcp, err := ethernet.NewTcpClient("26.69.104.210", "9000")
 	if err != nil {
@@ -85,7 +85,7 @@ func OutServer() {
 	defer ln.Close()
 	fmt.Printf("Сервер запущен на %s\n", addr)
 
-	key := tol.NewKey("wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+	key := tool.NewKey("wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
 	clients := make(map[net.Conn]bool)
 	var mu sync.Mutex
 
