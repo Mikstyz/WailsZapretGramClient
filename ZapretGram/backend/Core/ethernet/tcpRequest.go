@@ -2,8 +2,10 @@ package ethernet
 
 import (
 	"ZapretGram/backend/Core/Tools"
+	Model "ZapretGram/backend/Core/ethernet/Model"
 	model "ZapretGram/backend/Core/ethernet/Model"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -12,6 +14,10 @@ import (
 
 type TcpRequest struct {
 	Tcp *TcpClient
+}
+
+func (t *TcpRequest) RiderTcp(Pubkey string) {
+	panic("unimplemented")
 }
 
 func NewRequest(tcp *TcpClient, key string) *TcpRequest {
@@ -46,7 +52,7 @@ func (tcp *TcpClient) sendRequest(b []byte) {
 	}
 }
 
-func (tcp *TcpClient) readingAnsfer() *model.ResponseTcp {
+func (tcp *TcpClient) readingAnsfer() *Model.ResponseTcp {
 	// Чтение ответа
 	var lenBuf [4]byte
 	if _, err := io.ReadFull(tcp.Conn, lenBuf[:]); err != nil {
@@ -61,13 +67,30 @@ func (tcp *TcpClient) readingAnsfer() *model.ResponseTcp {
 		return nil
 	}
 
-	var res model.ResponseTcp
+	var res Model.ResponseTcp
 	if err := tcp.Key.DecPublicKey(respBuf, &res); err != nil {
 		fmt.Printf("Ошибка расшифровки ответа: %v\n", err)
 		return nil
 	}
 
 	return &res
+}
+
+func (t *TcpClient) Ping() bool {
+	ping := Model.RequestTcp{
+		Action: "ping",
+	}
+
+	b, err := t.Key.EncPublicKey(ping)
+	if err != nil {
+		fmt.Errorf("Ошибка шифрования: %v\n", err)
+	}
+	t.sendRequest(b)
+
+	res := t.readingAnsfer()
+
+	fmt.Printf("res server: %+d\n", res)
+	return res.Status == "ok"
 }
 
 func (t *TcpRequest) Auth(log string, pass string, action string) error {
@@ -77,10 +100,10 @@ func (t *TcpRequest) Auth(log string, pass string, action string) error {
 	}
 
 	//модель юзера
-	user := model.RequestTcp{
+	user := Model.RequestTcp{
 		Action:   action,
 		DateTime: time.Now().Format(time.RFC3339),
-		Data: model.RequestAuthData{
+		Data: Model.RequestAuthData{
 			UserIn:     log,
 			PasswordIn: pass,
 		},
@@ -93,34 +116,145 @@ func (t *TcpRequest) Auth(log string, pass string, action string) error {
 	fmt.Printf("b: %d", b)
 
 	if err != nil {
-		fmt.Errorf("Ошибка шифрования: %v\n", err)
+		fmt.Errorf("ошибка шифрования: %v\n", err)
 	}
 
 	//Отправляем длину сообщения
 	t.Tcp.sendRequest(b)
 
 	//читаем ответ
-	res := t.Tcp.readingAnsfer()
+	dataBytes := t.Tcp.readingAnsfer()
 
-	fmt.Printf("res server: %+v\n", res)
+	fmt.Printf("res server: %+v\n", dataBytes)
+
+	// Сериализуем поле Data обратно в json
+	dataRaw, err := json.Marshal(dataBytes.Data)
+	if err != nil {
+		return fmt.Errorf("ошибка маршала Data: %v", err)
+	}
+
+	// Парсим уже конкретный тип auth
+	var responseData Model.ResponseAuthData
+	if err := json.Unmarshal(dataRaw, &responseData); err != nil {
+		return fmt.Errorf("ошибка парсинга auth data: %v", err)
+	}
+	// Сохраняем значения
+	t.Tcp.Name = responseData.UserName
+	t.Tcp.UserId = responseData.UserId
+	t.Tcp.Token = responseData.Token
+	t.Tcp.Chats = responseData.Chats
+
+	fmt.Printf("Auth %s: user=%s id=%d token=%s, len chats:%d \n", dataBytes.Status, responseData.UserName, responseData.UserId, responseData.Token, len(responseData.Chats))
+
+	fmt.Print("\n====chats===================\n")
+	for key, chat := range t.Tcp.Chats {
+		fmt.Printf("user=%s, chat=%+v\n", key, chat)
+	}
+	fmt.Print("============================\n")
 
 	return nil
 }
 
-func (t *TcpClient) Ping() bool {
-	ping := model.RequestTcp{
-		Action: "ping",
+func (t *TcpRequest) NewChat(recipient string) error {
+	fmt.Println("newchat request")
+	request := model.RequestTcp{
+		Action:   "newchat",
+		DateTime: time.Now().Format(time.RFC3339),
+		Data: model.RequestNewChata{
+			CratorId: t.Tcp.UserId,
+			UserName: recipient,
+		},
 	}
 
-	b, err := t.Key.EncPublicKey(ping)
+	fmt.Println("создана новая сущность чата")
+
+	b, err := t.Tcp.Key.EncPublicKey(request)
+
 	if err != nil {
-		fmt.Errorf("Ошибка шифрования: %v\n", err)
+		fmt.Errorf("ошибка создания нового чата: %w\n", err)
+		return err
 	}
-	t.sendRequest(b)
 
-	res := t.readingAnsfer()
+	//запрос на сервер
+	fmt.Println("запрос на сервер")
+	t.Tcp.sendRequest(b)
+	//читаем ответ
+	fmt.Println("читаем ответ")
+	dataBytes := t.Tcp.readingAnsfer()
 
-	fmt.Printf("res server: %+v\n", res)
-	s, _ := strconv.ParseBool(res.Status)
-	return s
+	fmt.Printf("res server: %+v\n", dataBytes)
+
+	// Сериализуем поле Data обратно в json
+	dataRaw, err := json.Marshal(dataBytes.Data)
+	if err != nil {
+		return fmt.Errorf("ошибка маршала Data: %v\n", err)
+	}
+
+	var responseData model.ResponseNewChata
+	if err := json.Unmarshal(dataRaw, &responseData); err != nil {
+		return fmt.Errorf("ошибка парсинга auth data: %v\n", err)
+	}
+
+	if responseData.ChatId == 0 {
+		return fmt.Errorf("ошибка при создании нового чата, chatid is nil\n")
+	}
+
+	if t.Tcp.Chats == nil {
+		t.Tcp.Chats = make(map[string]model.Chat)
+	}
+
+	t.Tcp.Chats[strconv.FormatInt(responseData.ChatId, 10)] = model.Chat{
+		Id: responseData.ChatId,
+	}
+
+	return nil
+}
+
+func (t *TcpRequest) NewMessage(ChatId int64, message string) error {
+	fmt.Println("newmessage request")
+	request := model.RequestTcp{
+		Action:   "message",
+		CorrId:   Tools.GenerateUUID(),
+		DateTime: time.Now().Format(time.RFC3339),
+		Data: model.MessageInChat{
+			UserId:  t.Tcp.UserId,
+			ChatId:  ChatId,
+			Message: message,
+		},
+	}
+
+	b, err := t.Tcp.Key.EncPublicKey(request)
+
+	if err != nil {
+		fmt.Errorf("ошибка создания нового чата: %w\n", err)
+		return err
+	}
+
+	//запрос на сервер
+	fmt.Println("запрос на сервер")
+	t.Tcp.sendRequest(b)
+
+	//читаем ответ
+	fmt.Println("читаем ответ")
+	dataBytes := t.Tcp.readingAnsfer()
+
+	fmt.Printf("res server: %+v\n", dataBytes)
+
+	// Сериализуем поле Data обратно в json
+	dataRaw, err := json.Marshal(dataBytes.Data)
+	if err != nil {
+		return fmt.Errorf("ошибка маршала Data: %v\n", err)
+	}
+
+	var responsedata model.ResponseChat
+	if err := json.Unmarshal(dataRaw, &responsedata); err != nil {
+		return fmt.Errorf("ошибка парсинга message data: %v\n", err)
+	}
+
+	//тут будет кидать в буффер чата
+
+	//вывод сообщения в чат
+	fmt.Printf("chatId%d, messageid:%d\n", responsedata.ChatId, responsedata.MessageId)
+
+	return nil
 }

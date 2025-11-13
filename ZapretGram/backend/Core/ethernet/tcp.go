@@ -2,7 +2,7 @@ package ethernet
 
 import (
 	tools "ZapretGram/backend/Core/Tools"
-	model "ZapretGram/backend/Core/ethernet/Model"
+	Model "ZapretGram/backend/Core/ethernet/Model"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -17,11 +17,11 @@ type TcpClient struct {
 	mu   sync.RWMutex
 
 	//чтение соощений асинх
-	messageChan chan *ServerMessage
+	messageChan chan *Model.RequestTcp
 	done        chan struct{}
 
 	//сопосост запр-ответ
-	PendingReqs map[string]chan *ServerMessage
+	PendingReqs map[string]chan *Model.RequestTcp
 
 	//id and port server
 	IP   string
@@ -29,6 +29,14 @@ type TcpClient struct {
 
 	//ключ шифрования сервера public
 	Key *tools.Pubkey
+
+	//данные юзера
+	UserId int64
+	Name   string
+	Token  string
+
+	//chats
+	Chats map[string]Model.Chat
 }
 
 func NewTcpClient(ip, port string) (*TcpClient, error) {
@@ -61,7 +69,7 @@ func (c *TcpClient) Reconnect() error {
 	return nil
 }
 
-func (c *TcpClient) RequestTcp(req model.RequestTcp, pubkey *tools.Pubkey, result interface{}) error {
+func (c *TcpClient) RequestTcp(req Model.RequestTcp, pubkey *tools.Pubkey, result interface{}) error {
 	if c.Conn == nil {
 		return fmt.Errorf("conn not found")
 	}
@@ -88,7 +96,7 @@ func (c *TcpClient) RequestTcp(req model.RequestTcp, pubkey *tools.Pubkey, resul
 	}
 
 	// Расшифровываем
-	var resp model.ResponseTcp
+	var resp Model.ResponseTcp
 	if err := pubkey.DecPublicKey(line[:len(line)-1], &resp); err != nil {
 		return err
 	}
@@ -117,7 +125,7 @@ func (c *TcpClient) ListenMessages(pubkey *tools.Pubkey) {
 				return
 			}
 
-			var resp model.ResponseTcp
+			var resp Model.ResponseTcp
 			if err := pubkey.DecPublicKey(line[:len(line)-1], &resp); err != nil {
 				fmt.Println("Ошибка расшифровки:", err)
 				continue
@@ -128,25 +136,25 @@ func (c *TcpClient) ListenMessages(pubkey *tools.Pubkey) {
 
 			//chat
 			case "chat":
-				var chat model.ResponseChatData
+				var chat Model.ResponseChatData
 				dataBytes, _ := json.Marshal(resp.Data)
 				json.Unmarshal(dataBytes, &chat)
 				fmt.Printf("Новое сообщение от %s: %s\n", chat.ChatId, chat.Text)
 
 			//Успешная авторизация
 			case "auth":
-				var auth model.ResponseAuthData
+				var auth Model.ResponseAuthData
 				dataBytes, _ := json.Marshal(resp.Data)
 				json.Unmarshal(dataBytes, &auth)
 
-				if !auth.Status {
+				if resp.Status != "ok" {
 					fmt.Printf("не удачный вход на сервер, не верный login or password")
 				}
 				fmt.Printf("успешный вход на сервер. ID: %s\n", auth.Token)
-				fmt.Printf("auth status: %d", auth.Status)
+				fmt.Printf("auth status: %d", resp.Status)
 
 			case "error":
-				var errData model.ResponseErrorData
+				var errData Model.ResponseErrorData
 				dataBytes, _ := json.Marshal(resp.Data)
 				json.Unmarshal(dataBytes, &errData)
 				fmt.Printf("Ошибка %d: %s\n", errData.ErrorCode, errData.Details)

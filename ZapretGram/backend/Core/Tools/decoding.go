@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+
 	//"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -90,4 +91,8 @@ func (pubkey *Pubkey) DecPublicKey(enc []byte, out interface{}) error {
 	}
 
 	return json.Unmarshal(plaintext, out)
+}
+
+func (pubkey *Pubkey) MyKey() string {
+	return *pubkey.pubkey
 }

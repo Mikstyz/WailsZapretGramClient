@@ -36,7 +36,7 @@ func main() {
 	}
 
 	if mode == "c" {
-		ip := "26.69.104.210"
+		ip := "26.30.87.120"
 		port := "9000"
 		Pubkey := "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK"
 
@@ -46,30 +46,32 @@ func main() {
 		// }
 
 		client, _ := ethernet.NewTcpClient(ip, port)
-
 		tcp := ethernet.NewRequest(client, Pubkey)
+		fmt.Printf("%s\n", tcp.Tcp.Key.MyKey())
+		// status := tcp.Tcp.Ping()
 
-		status := tcp.Tcp.Ping()
+		// fmt.Print(tcp.Tcp.Key)
+		// fmt.Print(status)
 
-		fmt.Print(tcp.Tcp.Key)
-		fmt.Print(status)
+		//client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
 
-		// var i int = 0
+		err := tcp.Auth("slut", "imSLUT", "login")
+		fmt.Printf("My user id: %d\n", tcp.Tcp.UserId)
 
-		// client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
+		if err := client.RiderTcp(tcp.Tcp.Key); err != nil {
+			log.Fatalf("Ошибка RiderTcp: %v", err)
+		}
 
-		// tcp := ethernet.NewRequest(client, "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
+		fmt.Println("\nКлиент запущен, ожидание сообщений от сервера...")
 
-		// for true {
-		// 	time.Sleep(500 * time.Millisecond)
-		// 	i++
-		// 	fmt.Printf("ping :%d \n", i)
+		fmt.Println("отправили сообщение")
+		err = tcp.NewMessage(3, "ruslan huesos")
 
-		// 	err := tcp.Auth("slut", "imSLUT", "register")
+		if err != nil {
+			fmt.Print("ошибка авторизации\n")
+		}
 
-		// 	if err != nil {
-		// 		fmt.Print("ошибка авторизации")
-		// 	}
-		// }
+		//tcp.NewChat("slut2")
+		select {}
 	}
 }

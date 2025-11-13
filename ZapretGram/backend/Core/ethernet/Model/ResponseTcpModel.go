@@ -3,7 +3,8 @@ package model
 type ResponseTcp struct {
 	Action string      `json:"action"`           // Тип ответа (соответствует Action запроса)
 	Status string      `json:"status,omitempty"` // ok / error / fail
-	Data   interface{} `json:"data,omitempty"`   // payload, зависит от Action
+	CorrId string      `json:"correlation_id,omitempty"`
+	Data   interface{} `json:"data,omitempty"` // payload, зависит от Action
 }
 
 // ответ от чата
@@ -12,10 +13,19 @@ type ResponseChatData struct {
 	Text   string `json:"text,omitempty"`   // Текст сообщения
 }
 
+type ResponseNewChata struct {
+	//new chat
+	ChatId int64 `json:"chatid,omitempty"`
+}
+
 // ответ от регестрации или логина
 type ResponseAuthData struct {
-	Status bool   `json:"status,omitempty"`
-	Token  string `json:"token,omitempty"` // token
+	Token string `json:"token,omitempty"` // token
+
+	UserName string `json:"username,omitempty"`
+	UserId   int64  `json:"userid,omitempty"`
+
+	Chats map[string]Chat `json:chats,omitempty`
 }
 
 // Ошибка от сервера
