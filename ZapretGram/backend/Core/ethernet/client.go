@@ -4,6 +4,7 @@ import (
 	tools "ZapretGram/backend/Core/Tools"
 	Model "ZapretGram/backend/Core/ethernet/Model"
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,10 +12,13 @@ import (
 	"sync"
 )
 
-type TcpClient struct {
+type Tcp struct {
 	//Подключение и рутина
 	Conn net.Conn
 	mu   sync.RWMutex
+
+	//база данных подключения
+	DB *sql.DB
 
 	//чтение соощений асинх
 	messageChan chan *Model.RequestTcp
@@ -39,27 +43,28 @@ type TcpClient struct {
 	Chats map[string]Model.Chat
 }
 
-func NewTcpClient(ip, port string) (*TcpClient, error) {
+func NewTcpClient(ip, port string, db *sql.DB) (*Tcp, error) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", ip, port))
 	if err != nil {
 		return nil, err
 	}
 
-	return &TcpClient{
+	return &Tcp{
 		Conn: conn,
 		IP:   ip,
 		Port: port,
+		DB:   db,
 	}, nil
 }
 
-func (c *TcpClient) Disconnect() {
+func (c *Tcp) Disconnect() {
 	if c.Conn != nil {
 		c.Conn.Close()
 		c.Conn = nil
 	}
 }
 
-func (c *TcpClient) Reconnect() error {
+func (c *Tcp) Reconnect() error {
 	c.Disconnect()
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", c.IP, c.Port))
 	if err != nil {
@@ -69,7 +74,7 @@ func (c *TcpClient) Reconnect() error {
 	return nil
 }
 
-func (c *TcpClient) RequestTcp(req Model.RequestTcp, pubkey *tools.Pubkey, result interface{}) error {
+func (c *Tcp) RequestTcp(req Model.RequestTcp, pubkey *tools.Pubkey, result interface{}) error {
 	if c.Conn == nil {
 		return fmt.Errorf("conn not found")
 	}
@@ -115,7 +120,7 @@ func (c *TcpClient) RequestTcp(req Model.RequestTcp, pubkey *tools.Pubkey, resul
 	return nil
 }
 
-func (c *TcpClient) ListenMessages(pubkey *tools.Pubkey) {
+func (c *Tcp) ListenMessages(pubkey *tools.Pubkey) {
 	reader := bufio.NewReader(c.Conn)
 	go func() {
 		for {

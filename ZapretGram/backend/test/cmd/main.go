@@ -45,7 +45,7 @@ func main() {
 		// 	log.Print("false")
 		// }
 
-		client, _ := ethernet.NewTcpClient(ip, port)
+		client, _ := ethernet.NewTcpClient(ip, port, cfg.DBConn)
 		tcp := ethernet.NewRequest(client, Pubkey)
 		fmt.Printf("%s\n", tcp.Tcp.Key.MyKey())
 		// status := tcp.Tcp.Ping()

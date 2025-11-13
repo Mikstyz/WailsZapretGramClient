@@ -3,6 +3,7 @@ package test
 import (
 	tool "ZapretGram/backend/Core/Tools"
 	"ZapretGram/backend/Core/ethernet"
+	"database/sql"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -15,10 +16,10 @@ import (
 	modelE "ZapretGram/backend/Core/ethernet/Model"
 )
 
-func InServer() {
+func InServer(db *sql.DB) {
 	key := tool.NewKey("wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK")
 
-	tcp, err := ethernet.NewTcpClient("26.69.104.210", "9000")
+	tcp, err := ethernet.NewTcpClient("26.69.104.210", "9000", db)
 	if err != nil {
 		fmt.Printf("Ошибка подключения: %v\n", err)
 		return

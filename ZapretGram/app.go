@@ -3,8 +3,12 @@ package main
 import (
 	"ZapretGram/backend/Core/Tools"
 	"ZapretGram/backend/Core/ethernet"
+	model "ZapretGram/backend/Core/ethernet/Model"
+	"ZapretGram/backend/Core/service"
 	"ZapretGram/backend/conf"
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -13,12 +17,17 @@ type App struct {
 	ctx context.Context
 	cfg *conf.Config
 
+	tcp            *ethernet.TcpRequest
+	ServersStorage *service.ServiceStorage
+	DBConn         *sql.DB
 	// Добавь другие зависимости (TCP клиент, база данных и т.д.)
 }
 
 func NewApp(cfg *conf.Config) *App {
 	return &App{
-		cfg: cfg,
+		cfg:    cfg,
+		tcp:    nil,
+		DBConn: cfg.DBConn,
 	}
 }
 
@@ -59,19 +68,62 @@ func (a *App) GetUserInfo(userID int) map[string]interface{} {
 
 //=======================================================================
 
-func (a *App) ConnectServer(ip string, port string, Pubkey string) bool {
+func (a *App) ConnectServer(ip string, port string, Pubkey string) error {
 	err := Tools.Ping(ip, port)
 	if err != nil {
-		return false
+		return err
 	}
 
-	client, err := ethernet.NewTcpClient(ip, port)
+	client, err := ethernet.NewTcpClient(ip, port, a.DBConn)
 
 	tcp := ethernet.NewRequest(client, Pubkey)
 
 	if tcp == nil {
-		return false
+		return fmt.Errorf("tcp is nil")
 	}
 
-	return true
+	a.tcp = tcp
+	return nil
+}
+
+func (a *App) Auth(log string, pass string, action string) error {
+	err := a.tcp.Auth(log, pass, action)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) NewChat(recipient string) error {
+	err := a.tcp.NewChat(recipient)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (a *App) NewMessage(ChatId int64, message string) error {
+	err := a.tcp.NewMessage(ChatId, message)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) UpdateChat(chatId int64) map[string]model.Chat {
+
+	m := a.tcp.Tcp.Chats
+
+	if m == nil {
+		return make(map[string]model.Chat)
+	}
+
+	return m
 }

@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-func (c *TcpClient) RiderTcp(pubkey *tools.Pubkey) error {
+func (c *Tcp) RiderTcp(pubkey *tools.Pubkey) error {
 	if c.Conn == nil {
 		return fmt.Errorf("conn not found")
 	}
@@ -22,7 +22,7 @@ func (c *TcpClient) RiderTcp(pubkey *tools.Pubkey) error {
 	return nil
 }
 
-func (c *TcpClient) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
+func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 	var message Model.RequestTcp
 	var b []byte
 
@@ -53,6 +53,7 @@ func (c *TcpClient) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 	switch strings.ToLower(message.Action) {
 	case "register":
 		log.Print("register message in server")
+
 	case "message":
 		var msg Model.MessageInChat
 
@@ -72,6 +73,9 @@ func (c *TcpClient) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 		fmt.Printf("Сообщение - chatid %d, messageid=%d,userId=%d, текст='%s'\n",
 			msg.ChatId, msg.Id, msg.UserId, msg.Message)
 
+		//добавляем сообщение в бд
+		c.AddMessageInBuffer(msg)
+
 		// Отправляем обратно в ожидание ответа (если нужно)
 		c.routeToPendingRequest(&message)
 
@@ -80,7 +84,7 @@ func (c *TcpClient) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 	}
 }
 
-func (c *TcpClient) routeToPendingRequest(message *Model.RequestTcp) {
+func (c *Tcp) routeToPendingRequest(message *Model.RequestTcp) {
 	if message.CorrId == "" {
 		fmt.Println("corr error")
 		return
@@ -98,7 +102,7 @@ func (c *TcpClient) routeToPendingRequest(message *Model.RequestTcp) {
 	}
 }
 
-func (c *TcpClient) readerLoop(pubkey *tools.Pubkey) {
+func (c *Tcp) readerLoop(pubkey *tools.Pubkey) {
 	reader := bufio.NewReader(c.Conn)
 	const maxMsgLen = 100 * 1024 * 1024 // 100 MB
 

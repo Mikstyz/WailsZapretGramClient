@@ -13,14 +13,14 @@ import (
 )
 
 type TcpRequest struct {
-	Tcp *TcpClient
+	Tcp *Tcp
 }
 
 func (t *TcpRequest) RiderTcp(Pubkey string) {
 	panic("unimplemented")
 }
 
-func NewRequest(tcp *TcpClient, key string) *TcpRequest {
+func NewRequest(tcp *Tcp, key string) *TcpRequest {
 	fmt.Printf("conn: %+v\n", tcp)
 	if tcp.Conn == nil {
 		fmt.Println("Невозможно отправить запрос, соедененеие закрыто")
@@ -36,7 +36,7 @@ func NewRequest(tcp *TcpClient, key string) *TcpRequest {
 	return Tcpclient
 }
 
-func (tcp *TcpClient) sendRequest(b []byte) {
+func (tcp *Tcp) sendRequest(b []byte) {
 	// Отправляем сначала длину сообщения, потом сами данные
 	length := uint32(len(b))
 
@@ -52,7 +52,7 @@ func (tcp *TcpClient) sendRequest(b []byte) {
 	}
 }
 
-func (tcp *TcpClient) readingAnsfer() *Model.ResponseTcp {
+func (tcp *Tcp) readingAnsfer() *Model.ResponseTcp {
 	// Чтение ответа
 	var lenBuf [4]byte
 	if _, err := io.ReadFull(tcp.Conn, lenBuf[:]); err != nil {
@@ -76,7 +76,7 @@ func (tcp *TcpClient) readingAnsfer() *Model.ResponseTcp {
 	return &res
 }
 
-func (t *TcpClient) Ping() bool {
+func (t *Tcp) Ping() bool {
 	ping := Model.RequestTcp{
 		Action: "ping",
 	}
