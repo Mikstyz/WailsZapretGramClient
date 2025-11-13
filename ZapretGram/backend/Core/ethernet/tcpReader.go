@@ -73,8 +73,12 @@ func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 		fmt.Printf("Сообщение - chatid %d, messageid=%d,userId=%d, текст='%s'\n",
 			msg.ChatId, msg.Id, msg.UserId, msg.Message)
 
-		//добавляем сообщение в бд
-		c.AddMessageInBuffer(msg)
+		///добавляем сообщение в бд
+		err = c.AddMessageInDb(msg)
+
+		if err != nil {
+			fmt.Println("не удалось добавить сообщение в db")
+		}
 
 		// Отправляем обратно в ожидание ответа (если нужно)
 		c.routeToPendingRequest(&message)

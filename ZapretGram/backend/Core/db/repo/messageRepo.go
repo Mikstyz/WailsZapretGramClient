@@ -9,7 +9,7 @@ type MessagesRepo struct {
 	db *sql.DB
 }
 
-func (r *MessagesRepo) NewMessagesRepo(db *sql.DB) *MessagesRepo {
+func NewMessagesRepo(db *sql.DB) *MessagesRepo {
 	return &MessagesRepo{
 		db: db,
 	}
@@ -46,4 +46,16 @@ func (r *MessagesRepo) GetMessages(chatID int64, offset int, limit int) ([]model
 	}
 
 	return result, nil
+}
+
+func (r *MessagesRepo) AddMessage(msg model.MessageInChat) (int64, error) {
+	res, err := r.db.Exec(`
+        INSERT INTO messages (user_id, chat_id, message)
+        VALUES (?, ?, ?)
+    `, msg.UserId, msg.ChatId, msg.Message)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.LastInsertId()
 }
