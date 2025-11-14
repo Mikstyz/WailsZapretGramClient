@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZAPRETGRAM · Вход</title>
+    <title>ZAPRETGRAM · Регистрация</title>
     <link rel="stylesheet" href="./auth.css" />
   </head>
   <body>
@@ -14,7 +14,7 @@
             <div class="logo"></div>
             <div class="title">ZAPRETGRAM</div>
           </div>
-          <p class="subtitle">Рады видеть вас снова</p>
+          <p class="subtitle">Создайте аккаунт, чтобы продолжить</p>
 
           <form id="form" novalidate>
             <div class="field">
@@ -43,7 +43,7 @@
                   class="input"
                   type="password"
                   placeholder="Пароль"
-                  autocomplete="current-password"
+                  autocomplete="new-password"
                   required
                   minlength="8"
                 />
@@ -69,22 +69,26 @@
                   </svg>
                 </button>
               </div>
+              <div class="strength" id="strengthBar">
+                <span></span><span></span><span></span><span></span>
+              </div>
               <div class="hint" id="pwHint"></div>
             </div>
 
             <div class="actions">
               <button id="submitBtn" class="btn" type="submit" disabled>
-                Войти
+                Зарегистрироваться
               </button>
-              <a class="muted-link" href="./reg.html"
-                >Нет аккаунта? Зарегистрироваться</a
+              <a class="muted-link" href="./log.html"
+                >Уже есть аккаунт? Войти</a
               >
             </div>
           </form>
         </div>
       </section>
     </main>
-
-    <script type="module" src="../dist/log.js"></script>
+    <script src="/wails/runtime.js"></script>
+    <script src="/wails/ipc.js"></script>
+    <script type="module" src="./reg.js"></script>
   </body>
 </html>

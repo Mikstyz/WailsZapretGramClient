@@ -452,8 +452,12 @@ body {
   gap: 12px;
   align-items: center;
   padding: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .user-modal-avatar {
   width: 56px;
@@ -488,7 +492,7 @@ body {
 }
 .user-modal-close:hover {
   color: var(--text);
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 .user-modal-body {
   padding: 14px 16px 0;
@@ -496,7 +500,7 @@ body {
 .user-modal-tabs {
   display: flex;
   gap: 8px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin-top: 12px;
   padding: 10px 12px;
   background: var(--panel-2);
@@ -510,8 +514,8 @@ body {
 }
 .user-tab-btn.active {
   color: var(--text);
-  background: rgba(108,111,247,0.16);
-  box-shadow: inset 0 0 0 1px rgba(108,111,247,0.35);
+  background: rgba(108, 111, 247, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(108, 111, 247, 0.35);
 }
 .user-tab-panel {
   display: none;
@@ -547,14 +551,99 @@ body {
   overflow: hidden;
   color: var(--text);
 }
+
+/* Add Chat FAB (floating action button) inside sidebar */
+.add-chat-btn {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 12px 30px var(--ring);
+  border: none;
+  z-index: 30;
+}
+.add-chat-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Add Chat modal overlay */
+.add-chat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+.add-chat-overlay.open {
+  display: flex;
+}
+.add-chat-modal {
+  width: min(480px, 92vw);
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 24px 80px var(--shadow);
+  padding: 18px;
+  color: var(--text);
+  display: grid;
+  gap: 12px;
+}
+.add-chat-modal h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.add-chat-input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  outline: none;
+}
+.add-chat-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.btn-add {
+  all: unset;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #fff;
+  font-weight: 600;
+}
+.btn-cancel {
+  all: unset;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
 .settings-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-weight: 700;
 }
 .settings-close {
@@ -569,7 +658,7 @@ body {
 }
 .settings-close:hover {
   color: var(--text);
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 .settings-body {
   display: grid;
@@ -614,7 +703,7 @@ body {
   padding: 10px 14px;
   border-radius: 12px;
   color: var(--text);
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Responsive */

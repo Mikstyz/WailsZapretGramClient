@@ -1,18 +1,12 @@
+"use strict";
 (() => {
-  const form = document.getElementById("form") as HTMLFormElement | null;
-  const nameInput = document.getElementById("name") as HTMLInputElement | null;
-  const pwInput = document.getElementById(
-    "password"
-  ) as HTMLInputElement | null;
-  const submitBtn = document.getElementById(
-    "submitBtn"
-  ) as HTMLButtonElement | null;
-  const togglePw = document.getElementById(
-    "togglePw"
-  ) as HTMLButtonElement | null;
-  const nameHint = document.getElementById("nameHint") as HTMLElement | null;
-  const pwHint = document.getElementById("pwHint") as HTMLElement | null;
-
+  const form = document.getElementById("form");
+  const nameInput = document.getElementById("name");
+  const pwInput = document.getElementById("password");
+  const submitBtn = document.getElementById("submitBtn");
+  const togglePw = document.getElementById("togglePw");
+  const nameHint = document.getElementById("nameHint");
+  const pwHint = document.getElementById("pwHint");
   if (
     !form ||
     !nameInput ||
@@ -24,22 +18,19 @@
   ) {
     return;
   }
-
-  const formEl = form as HTMLFormElement;
-  const nameEl = nameInput as HTMLInputElement;
-  const pwEl = pwInput as HTMLInputElement;
-  const submitEl = submitBtn as HTMLButtonElement;
-  const togglePwEl = togglePw as HTMLButtonElement;
-  const nameHintEl = nameHint as HTMLElement;
-  const pwHintEl = pwHint as HTMLElement;
-
-  function updateButtonState(): void {
+  const formEl = form;
+  const nameEl = nameInput;
+  const pwEl = pwInput;
+  const submitEl = submitBtn;
+  const togglePwEl = togglePw;
+  const nameHintEl = nameHint;
+  const pwHintEl = pwHint;
+  function updateButtonState() {
     const valid =
       nameEl.value.trim().length >= 6 && pwEl.value.trim().length >= 8;
     submitEl.disabled = !valid;
   }
-
-  function validateName(): boolean {
+  function validateName() {
     const v = nameEl.value.trim();
     if (!v) {
       nameHintEl.textContent = "Введите имя";
@@ -58,7 +49,6 @@
     nameHintEl.classList.add("success");
     return true;
   }
-
   nameEl.addEventListener("input", () => {
     validateName();
     updateButtonState();
@@ -67,7 +57,6 @@
     pwHintEl.textContent = pwEl.value ? "" : "";
     updateButtonState();
   });
-
   togglePwEl.addEventListener("click", () => {
     const isPwd = pwEl.type === "password";
     pwEl.type = isPwd ? "text" : "password";
@@ -76,16 +65,25 @@
       isPwd ? "Скрыть пароль" : "Показать пароль"
     );
   });
-
-  formEl.addEventListener("submit", (e: Event) => {
+  formEl.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (submitEl.disabled) return;
-    alert("Вход выполнен!\nИмя: " + nameEl.value);
+    try {
+      const result = await window.go.main.App.Auth(
+        nameEl.value,
+        pwEl.value,
+        "login"
+      );
+      console.log("ConnectServer result:", result);
+      window.location.href = "./main.html";
+    } catch (err) {
+      console.warn("ConnectServer failed:", err);
+    }
     formEl.reset();
     nameHintEl.textContent = "";
     pwHintEl.textContent = "";
     updateButtonState();
   });
-
   updateButtonState();
 })();
+//# sourceMappingURL=log.js.map

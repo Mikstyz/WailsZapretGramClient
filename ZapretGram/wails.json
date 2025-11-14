@@ -1,9 +1,10 @@
 {
-  "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "ZapretGram",
-  "outputfilename": "ZapretGram",
-  "frontend:install": "npm install",
-  "frontend:build": "npm run build",
-  "frontend:dev": "",
-  "frontend:dir": "frontend/pages"
+  "name": "wailsGram",
+  "outputfilename": "wailsGram",
+  "frontend:install": "",
+  "frontend:build": "",
+  "author": {
+    "name": "",
+    "email": ""
+  }
 }
