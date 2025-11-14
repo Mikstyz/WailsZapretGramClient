@@ -24,9 +24,66 @@
     return;
   }
   sendBtn.type = "button";
+
+  // Load chats from sessionStorage (set by log.js after Auth)
+  const storedChats = sessionStorage.getItem("chats");
+  let chatsMap = {};
+  if (storedChats) {
+    try {
+      chatsMap = JSON.parse(storedChats);
+      console.info("Loaded chats from sessionStorage:", chatsMap);
+    } catch (e) {
+      console.error("Failed to parse stored chats:", e);
+    }
+  }
+
   const now = Date.now();
   const minutesAgo = (value) => new Date(now - value * 60_000);
-  const users = [
+
+  // Convert chatsMap { username: { Id: int64 } } to users array and chats array
+  const convertChatsMapToState = (chatsMap) => {
+    const convertedUsers = [];
+    const convertedChats = [];
+
+    if (!chatsMap || typeof chatsMap !== "object") {
+      return { users: convertedUsers, chats: convertedChats };
+    }
+
+    Object.entries(chatsMap).forEach(([username, chatObj]) => {
+      if (!chatObj || typeof chatObj !== "object") return;
+
+      const chatId = String(chatObj.Id ?? chatObj.id ?? username);
+      const initials = username.slice(0, 1).toUpperCase();
+
+      // Create user
+      const user = {
+        id: chatId,
+        name: username,
+        initials,
+        isOnline: false,
+        lastSeen: new Date(),
+      };
+      convertedUsers.push(user);
+
+      // Create chat
+      const chat = {
+        id: chatId,
+        name: username,
+        initials,
+        isOnline: false,
+        lastSeen: new Date(),
+        messages: [],
+      };
+      convertedChats.push(chat);
+    });
+
+    return { users: convertedUsers, chats: convertedChats };
+  };
+
+  const { users: backendUsers, chats: backendChats } =
+    convertChatsMapToState(chatsMap);
+
+  const demoUsers = [
     {
       id: "alice",
       name: "Alice",
@@ -70,6 +127,8 @@
       lastSeen: minutesAgo(3),
     },
   ];
+
+  const users = backendUsers.length > 0 ? backendUsers : demoUsers;
   const userById = new Map(users.map((user) => [user.id, user]));
   const createChat = (userId, messages) => {
     const user = userById.get(userId);
@@ -85,7 +144,8 @@
       messages,
     };
   };
-  const chats = [
+
+  const demoChats = [
     createChat("alice", [
       {
         id: "alice-1",
@@ -141,6 +201,8 @@
       },
     ]),
   ];
+
+  const chats = backendChats.length > 0 ? backendChats : demoChats;
   const state = {
     chats,
     users,
@@ -786,18 +848,41 @@
         add.disabled = true;
         add.textContent = "...";
         try {
-          // Call Go method, expect an object like { id: string, username: string }
+          // Call Go method. Backend returns map[string]model.Chat where
+          // the map key is the username and value is model.Chat { Id int64 }
+          const payload = { username: id };
+          console.info("NewChat request payload:", payload);
           const res = await window.go.main.App.NewChat(id);
-          // If backend returned a chat id and username, use them
-          const chatId = res?.id ?? id;
-          const username = res?.username ?? res?.name ?? v;
+          console.info("NewChat response:", res);
+          // Parse response: prefer map form (username -> { Id })
+          let chatId = id;
+          let username = v;
+          console.log(username);
+          if (res && typeof res === "object") {
+            const keys = Object.keys(res);
+            if (keys.length > 0) {
+              username = keys[0];
+              const chatObj = res[username];
+              if (
+                chatObj &&
+                (chatObj.Id !== undefined || chatObj.id !== undefined)
+              ) {
+                const numericId = chatObj.Id ?? chatObj.id;
+                chatId = String(numericId);
+              }
+            } else {
+              // fallback: maybe returned flat object { id, username }
+              chatId = String(res.id ?? res.Id ?? id);
+              username = res.username ?? res.name ?? username;
+            }
+          }
 
           let user = state.users.find((u) => u.id === chatId);
           if (!user) {
             user = {
               id: chatId,
               name: username,
-              initials: (username || v).slice(0, 1).toUpperCase(),
+              initials: username || v,
               isOnline: false,
               lastSeen: new Date(),
             };

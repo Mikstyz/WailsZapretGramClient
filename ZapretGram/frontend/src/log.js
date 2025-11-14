@@ -68,16 +68,48 @@
   formEl.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (submitEl.disabled) return;
+    submitEl.disabled = true;
+    submitEl.textContent = "...";
     try {
+      console.info("Calling Auth with:", nameEl.value, "***");
       const result = await window.go.main.App.Auth(
         nameEl.value,
         pwEl.value,
         "login"
       );
-      console.log("ConnectServer result:", result);
-      window.location.href = "./main.html";
+      console.info("Auth result type:", typeof result);
+      console.info("Auth result:", result);
+      console.info(
+        "Auth result keys:",
+        result ? Object.keys(result) : "null/undefined"
+      );
+
+      // result should be map[string]model.Chat
+      if (result && typeof result === "object") {
+        const chatsJson = JSON.stringify(result);
+        console.info(
+          "Storing chats (length=" + chatsJson.length + "):",
+          chatsJson
+        );
+        sessionStorage.setItem("chats", chatsJson);
+        console.info(
+          "SessionStorage after set - length:",
+          sessionStorage.length
+        );
+        console.info(
+          "SessionStorage chats value:",
+          sessionStorage.getItem("chats")
+        );
+        window.location.href = "./main.html";
+      } else {
+        console.error("Auth result is not an object:", result);
+      }
     } catch (err) {
-      console.warn("ConnectServer failed:", err);
+      console.error("Auth failed:", err);
+      nameHintEl.textContent = "Ошибка при логине: " + (err?.message || err);
+      nameHintEl.classList.add("error");
+      submitEl.disabled = false;
+      submitEl.textContent = "Войти";
     }
     formEl.reset();
     nameHintEl.textContent = "";
