@@ -5,6 +5,7 @@ import (
 	Model "ZapretGram/backend/Core/ethernet/Model"
 	"ZapretGram/backend/Core/service"
 	"bufio"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -45,6 +46,9 @@ type Tcp struct {
 
 	//message servise
 	msg *service.MessageService
+
+	//ctx
+	Ctx context.Context
 }
 
 func NewTcpClient(ip, port string, db *sql.DB) (*Tcp, error) {

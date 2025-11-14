@@ -2,6 +2,7 @@ package main
 
 import (
 	"ZapretGram/backend/Core/ethernet"
+	"ZapretGram/backend/Core/service"
 	"ZapretGram/backend/conf"
 	"ZapretGram/backend/test"
 
@@ -40,20 +41,14 @@ func main() {
 		port := "9000"
 		Pubkey := "wsdfvbndfghbjnmklrftghjkrtfghm348etvfghnj4567zsxdcfgvhbjjSDFGHRFGHSDFGVXDFGFGBHKJMLLTRFYGHUJK"
 
-		// err := Tools.Ping(ip, port)
-		// if err != nil {
-		// 	log.Print("false")
-		// }
-
 		client, _ := ethernet.NewTcpClient(ip, port, cfg.DBConn)
 		tcp := ethernet.NewRequest(client, Pubkey)
+
+		// СОХРАНИТЕ MessageService в переменную и установите контекст
+		messageService := service.NewMessageService(tcp.Tcp.DB, 2)
+		messageService.SetContext(tcp.Tcp.Ctx) // ctx должен быть доступен в этой функции
+
 		fmt.Printf("%s\n", tcp.Tcp.Key.MyKey())
-		// status := tcp.Tcp.Ping()
-
-		// fmt.Print(tcp.Tcp.Key)
-		// fmt.Print(status)
-
-		//client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
 
 		err := tcp.Auth("RyslanDayn3", "RyslanDayn3", "login")
 		fmt.Printf("My user id: %d\n", tcp.Tcp.UserId)
@@ -63,10 +58,6 @@ func main() {
 		}
 
 		fmt.Println("\nКлиент запущен, ожидание сообщений от сервера...")
-
-		//fmt.Println("Создание чата")
-		//tcp.NewChat("RyslanDayn2")
-
 		fmt.Println("отправили сообщение")
 		tcp.NewMessage(2, "jopa")
 
@@ -74,7 +65,6 @@ func main() {
 			fmt.Print("ошибка авторизации\n")
 		}
 
-		//tcp.NewChat("slut2")
 		select {}
 	}
 }
