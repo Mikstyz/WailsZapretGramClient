@@ -64,11 +64,11 @@ func main() {
 
 		fmt.Println("\nКлиент запущен, ожидание сообщений от сервера...")
 
-		fmt.Println("Создание чата")
-		tcp.NewChat("RyslanDayn2")
+		//fmt.Println("Создание чата")
+		//tcp.NewChat("RyslanDayn2")
 
-		//fmt.Println("отправили сообщение")
-		//err = tcp.NewMessage(1, "ruslan huesos")
+		fmt.Println("отправили сообщение")
+		tcp.NewMessage(2, "jopa")
 
 		if err != nil {
 			fmt.Print("ошибка авторизации\n")

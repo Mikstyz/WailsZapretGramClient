@@ -59,7 +59,7 @@ func (s *MessageService) ViewBuffer() {
 // emitBufferUpdate отправляет событие с обновленным буфером
 func (s *MessageService) emitBufferUpdate() {
 	if s.ctx != nil {
-		runtime.EventsEmit(s.ctx, "bufferUpdated", s.msgBuffer)
+		runtime.EventsEmit(s.ctx, "buffer updated", s.msgBuffer)
 	}
 }
 

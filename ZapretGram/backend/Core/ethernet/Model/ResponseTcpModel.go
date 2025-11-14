@@ -20,12 +20,14 @@ type ResponseNewChata struct {
 
 // ответ от регестрации или логина
 type ResponseAuthData struct {
-	Token string `json:"token,omitempty"` // token
+	Token    string          `json:"token,omitempty"`
+	UserName string          `json:"username,omitempty"`
+	UserId   int64           `json:"userid,omitempty"`
+	Chats    map[string]Chat `json:"chats,omitempty"`
+}
 
-	UserName string `json:"username,omitempty"`
-	UserId   int64  `json:"userid,omitempty"`
-
-	Chats map[string]Chat `json:chats,omitempty`
+type ResponseNewChat struct {
+	ChatId int64 `json:"chatid,omitempty"`
 }
 
 // Ошибка от сервера

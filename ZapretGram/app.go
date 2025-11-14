@@ -113,6 +113,10 @@ func (a *App) NewChat(recipient string) map[string]model.Chat {
 func (a *App) OpenChat(chatid int64) error {
 	a.msgService = service.NewMessageService(a.DBConn, chatid)
 
+	if a.msgService == nil {
+		return fmt.Errorf("не удалось зарегестрировать буффер сообщений в чате")
+	}
+
 	return nil
 }
 
