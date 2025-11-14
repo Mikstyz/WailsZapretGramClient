@@ -86,27 +86,38 @@ func (a *App) ConnectServer(ip string, port string, Pubkey string) error {
 	return nil
 }
 
-func (a *App) Auth(log string, pass string, action string) error {
+func (a *App) Auth(log string, pass string, action string) (map[string]model.Chat, error) {
 	fmt.Print("auth in aboba")
 	fmt.Printf(log, pass, action)
 	err := a.tcp.Auth(log, pass, action)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	// Return the chats map after successful auth
+	m := a.tcp.Tcp.Chats
+	if m == nil {
+		return make(map[string]model.Chat), nil
+	}
+
+	return m, nil
 }
 
-func (a *App) NewChat(recipient string) error {
+func (a *App) NewChat(recipient string) (map[string]model.Chat, error) {
 	err := a.tcp.NewChat(recipient)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	// Return the updated chats map
+	m := a.tcp.Tcp.Chats
+	if m == nil {
+		return make(map[string]model.Chat), nil
+	}
 
+	return m, nil
 }
 
 func (a *App) NewMessage(ChatId int64, message string) error {
