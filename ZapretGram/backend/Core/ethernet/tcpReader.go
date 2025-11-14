@@ -26,7 +26,6 @@ func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 	var message Model.RequestTcp
 	var b []byte
 
-	fmt.Printf("data: %d\n", data)
 	pubkey.DecPublicKey(data, &b)
 
 	// обрезаем возможные нулевые байты после расшифровки
@@ -36,6 +35,8 @@ func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 		fmt.Println("Пустое сообщение после расшифровки")
 		return
 	}
+
+	fmt.Printf("data: %d\n", data)
 
 	// теперь анмаршалим **только расшифрованные данные**
 	if err := json.Unmarshal(b, &message); err != nil {
@@ -51,8 +52,6 @@ func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 	fmt.Printf("===========\n[reader] получено сообщение от сервера %s\n===========\n", message.Action)
 
 	switch strings.ToLower(message.Action) {
-	case "register":
-		log.Print("register message in server")
 
 	case "message":
 		var msg Model.MessageInChat
@@ -73,12 +72,19 @@ func (c *Tcp) processIncomigMessage(pubkey *tools.Pubkey, data []byte) {
 		fmt.Printf("Сообщение - chatid %d, messageid=%d,userId=%d, текст='%s'\n",
 			msg.ChatId, msg.Id, msg.UserId, msg.Message)
 
-		///добавляем сообщение в бд
-		err = c.AddMessageInDb(msg)
+		//добавляем сообщение в буффер
+		var i int
+		for i < 5 {
+			i++
+			err = c.msg.AddMessage(msg)
 
-		if err != nil {
-			fmt.Println("не удалось добавить сообщение в db")
+			if err != nil {
+				fmt.Println("не удалось добавить сообщение в буффер")
+				return
+			}
 		}
+
+		c.msg.ViewBuffer()
 
 		// Отправляем обратно в ожидание ответа (если нужно)
 		c.routeToPendingRequest(&message)

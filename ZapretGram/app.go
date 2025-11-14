@@ -18,6 +18,7 @@ type App struct {
 	cfg *conf.Config
 
 	tcp            *ethernet.TcpRequest
+	msgService     *service.MessageService
 	ServersStorage *service.ServiceStorage
 	DBConn         *sql.DB
 	// Добавь другие зависимости (TCP клиент, база данных и т.д.)
@@ -25,14 +26,18 @@ type App struct {
 
 func NewApp(cfg *conf.Config) *App {
 	return &App{
-		cfg:    cfg,
-		tcp:    nil,
-		DBConn: cfg.DBConn,
+		cfg:        cfg,
+		tcp:        nil,
+		msgService: nil,
+		DBConn:     cfg.DBConn,
 	}
 }
 
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+
+	a.msgService.SetContext(a.ctx)
+
 	log.Println("[App] Startup completed")
 
 	// Здесь можно запустить TCP клиент и другие сервисы
@@ -86,11 +91,16 @@ func (a *App) ConnectServer(ip string, port string, Pubkey string) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func (a *App) Auth(log string, pass string, action string) (map[string]model.Chat, error) {
+=======
+func (a *App) Auth(log string, pass string, action string) map[string]model.Chat {
+>>>>>>> b45bacd57b688e7d2ab741613d97cbf8fb6d7ea2
 	fmt.Print("auth in aboba")
 	fmt.Printf(log, pass, action)
-	err := a.tcp.Auth(log, pass, action)
+	chats := a.tcp.Auth(log, pass, action)
 
+<<<<<<< HEAD
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +126,27 @@ func (a *App) NewChat(recipient string) (map[string]model.Chat, error) {
 	if m == nil {
 		return make(map[string]model.Chat), nil
 	}
+=======
+	return chats
+}
+
+func (a *App) NewChat(recipient string) map[string]model.Chat {
+	datachat := a.tcp.NewChat(recipient)
+
+	if datachat == nil {
+		return map[string]model.Chat{}
+	}
+
+	return datachat
+>>>>>>> b45bacd57b688e7d2ab741613d97cbf8fb6d7ea2
 
 	return m, nil
+}
+
+func (a *App) OpenChat(chatid int64) error {
+	a.msgService = service.NewMessageService(a.DBConn, chatid)
+
+	return nil
 }
 
 func (a *App) NewMessage(ChatId int64, message string) error {
