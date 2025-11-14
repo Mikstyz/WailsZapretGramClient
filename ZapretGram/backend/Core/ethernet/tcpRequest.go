@@ -155,7 +155,7 @@ func (t *TcpRequest) Auth(log string, pass string, action string) error {
 	return nil
 }
 
-func (t *TcpRequest) NewChat(recipient string) error {
+func (t *TcpRequest) NewChat(recipient string) map[string]model.Chat {
 	fmt.Println("newchat request")
 	request := model.RequestTcp{
 		Action:   "newchat",
@@ -172,7 +172,7 @@ func (t *TcpRequest) NewChat(recipient string) error {
 
 	if err != nil {
 		fmt.Errorf("ошибка создания нового чата: %w\n", err)
-		return err
+		return nil
 	}
 
 	//запрос на сервер
@@ -187,16 +187,19 @@ func (t *TcpRequest) NewChat(recipient string) error {
 	// Сериализуем поле Data обратно в json
 	dataRaw, err := json.Marshal(dataBytes.Data)
 	if err != nil {
-		return fmt.Errorf("ошибка маршала Data: %v\n", err)
+		fmt.Errorf("ошибка маршала Data: %v\n", err)
+		return nil
 	}
 
 	var responseData model.ResponseNewChata
 	if err := json.Unmarshal(dataRaw, &responseData); err != nil {
-		return fmt.Errorf("ошибка парсинга auth data: %v\n", err)
+		fmt.Errorf("ошибка парсинга auth data: %v\n", err)
+		return nil
 	}
 
 	if responseData.ChatId == 0 {
-		return fmt.Errorf("ошибка при создании нового чата, chatid is nil\n")
+		fmt.Errorf("ошибка при создании нового чата, chatid is nil\n")
+		return nil
 	}
 
 	if t.Tcp.Chats == nil {
@@ -207,7 +210,7 @@ func (t *TcpRequest) NewChat(recipient string) error {
 		Id: responseData.ChatId,
 	}
 
-	return nil
+	return t.Tcp.Chats
 }
 
 func (t *TcpRequest) NewMessage(ChatId int64, message string) error {

@@ -15,6 +15,11 @@ func NewMessagesRepo(db *sql.DB) *MessagesRepo {
 	}
 }
 
+func (r *MessagesRepo) CreateTable() error {
+
+	return nil
+}
+
 // offset = сколько сообщений пропустить
 // limit = сколько вернуть (обычно 10)
 func (r *MessagesRepo) GetMessages(chatID int64, offset int, limit int) ([]model.MessageInChat, error) {
@@ -58,4 +63,8 @@ func (r *MessagesRepo) AddMessage(msg model.MessageInChat) (int64, error) {
 	}
 
 	return res.LastInsertId()
+}
+
+func (r *MessagesRepo) GetLastMessages() ([]model.MessageInChat, error) {
+	return nil, nil
 }

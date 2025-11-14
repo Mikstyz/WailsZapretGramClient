@@ -18,6 +18,7 @@ type App struct {
 	cfg *conf.Config
 
 	tcp            *ethernet.TcpRequest
+	msgService     *service.MessageService
 	ServersStorage *service.ServiceStorage
 	DBConn         *sql.DB
 	// Добавь другие зависимости (TCP клиент, база данных и т.д.)
@@ -25,14 +26,18 @@ type App struct {
 
 func NewApp(cfg *conf.Config) *App {
 	return &App{
-		cfg:    cfg,
-		tcp:    nil,
-		DBConn: cfg.DBConn,
+		cfg:        cfg,
+		tcp:        nil,
+		msgService: nil,
+		DBConn:     cfg.DBConn,
 	}
 }
 
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+
+	a.msgService.SetContext(a.ctx)
+
 	log.Println("[App] Startup completed")
 
 	// Здесь можно запустить TCP клиент и другие сервисы
@@ -96,15 +101,21 @@ func (a *App) Auth(log string, pass string, action string) error {
 	return nil
 }
 
-func (a *App) NewChat(recipient string) error {
-	err := a.tcp.NewChat(recipient)
+func (a *App) NewChat(recipient string) map[string]model.Chat {
+	datachat := a.tcp.NewChat(recipient)
 
-	if err != nil {
-		return err
+	if datachat == nil {
+		return map[string]model.Chat{}
 	}
 
-	return nil
+	return datachat
 
+}
+
+func (a *App) OpenChat(chatid int64) error {
+	a.msgService = service.NewMessageService(a.DBConn, chatid)
+
+	return nil
 }
 
 func (a *App) NewMessage(ChatId int64, message string) error {

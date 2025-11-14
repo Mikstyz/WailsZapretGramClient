@@ -3,6 +3,7 @@ package ethernet
 import (
 	tools "ZapretGram/backend/Core/Tools"
 	Model "ZapretGram/backend/Core/ethernet/Model"
+	"ZapretGram/backend/Core/service"
 	"bufio"
 	"database/sql"
 	"encoding/json"
@@ -41,6 +42,9 @@ type Tcp struct {
 
 	//chats
 	Chats map[string]Model.Chat
+
+	//message servise
+	msg *service.MessageService
 }
 
 func NewTcpClient(ip, port string, db *sql.DB) (*Tcp, error) {
