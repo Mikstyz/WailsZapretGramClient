@@ -91,16 +91,12 @@ func (a *App) ConnectServer(ip string, port string, Pubkey string) error {
 	return nil
 }
 
-func (a *App) Auth(log string, pass string, action string) error {
+func (a *App) Auth(log string, pass string, action string) map[string]model.Chat {
 	fmt.Print("auth in aboba")
 	fmt.Printf(log, pass, action)
-	err := a.tcp.Auth(log, pass, action)
+	chats := a.tcp.Auth(log, pass, action)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return chats
 }
 
 func (a *App) NewChat(recipient string) map[string]model.Chat {

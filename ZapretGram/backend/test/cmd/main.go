@@ -55,7 +55,7 @@ func main() {
 
 		//client, _ := ethernet.NewTcpClient("26.69.104.210", "9000")
 
-		err := tcp.Auth("slut2", "imSLUT", "login")
+		err := tcp.Auth("RyslanDayn3", "RyslanDayn3", "login")
 		fmt.Printf("My user id: %d\n", tcp.Tcp.UserId)
 
 		if err := client.RiderTcp(tcp.Tcp.Key); err != nil {
@@ -64,10 +64,11 @@ func main() {
 
 		fmt.Println("\nКлиент запущен, ожидание сообщений от сервера...")
 
-		//tcp.NewChat("slut")
+		fmt.Println("Создание чата")
+		tcp.NewChat("RyslanDayn2")
 
-		fmt.Println("отправили сообщение")
-		err = tcp.NewMessage(1, "ruslan huesos")
+		//fmt.Println("отправили сообщение")
+		//err = tcp.NewMessage(1, "ruslan huesos")
 
 		if err != nil {
 			fmt.Print("ошибка авторизации\n")
