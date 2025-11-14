@@ -92,6 +92,8 @@ func (a *App) ConnectServer(ip string, port string, Pubkey string) error {
 }
 
 func (a *App) Auth(log string, pass string, action string) error {
+	fmt.Print("auth in aboba")
+	fmt.Printf(log, pass, action)
 	err := a.tcp.Auth(log, pass, action)
 
 	if err != nil {
