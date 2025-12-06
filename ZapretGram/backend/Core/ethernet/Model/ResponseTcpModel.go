@@ -1,10 +1,11 @@
 package model
 
 type ResponseTcp struct {
-	Action string      `json:"action"`           // Тип ответа (соответствует Action запроса)
-	Status string      `json:"status,omitempty"` // ok / error / fail
-	CorrId string      `json:"correlation_id,omitempty"`
-	Data   interface{} `json:"data,omitempty"` // payload, зависит от Action
+	Action   string      `json:"action"`             // Тип ответа (соответствует Action запроса)
+	Status   string      `json:"status,omitempty"`   // ok / error / fail
+	DateTime string      `json:"datetime,omitempty"` //Время запроса
+	CorrId   string      `json:"correlation_id,omitempty"`
+	Data     interface{} `json:"data,omitempty"` // payload, зависит от Action
 }
 
 // ответ от чата

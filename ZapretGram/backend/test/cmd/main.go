@@ -2,9 +2,11 @@ package main
 
 import (
 	"ZapretGram/backend/Core/ethernet"
+	etModel "ZapretGram/backend/Core/ethernet/Model"
 	"ZapretGram/backend/Core/service"
 	"ZapretGram/backend/conf"
 	"ZapretGram/backend/test"
+	v "ZapretGram/backend/test/view"
 
 	"fmt"
 	"log"
@@ -15,6 +17,24 @@ import (
 
 // main file
 func main() {
+	var resp = etModel.ResponseTcp{
+		Status:   "ok",
+		DateTime: "12.12.12",
+		CorrId:   "1",
+		Data: etModel.RequestMessage{
+			//UserId:  1,
+			//ChatId:  1,
+			//Message: "соси мой пенис поблятода",
+		},
+	}
+
+	v.LogTcp(&resp)
+	resp.Status = "error"
+	v.LogTcp(&resp)
+	resp.Status = "xui"
+	v.LogTcp(&resp)
+
+	return
 	cfg, err := conf.LoadConfig()
 	if err != nil {
 		log.Fatalf("[main] ошибка загрузки конфига: %v", err)

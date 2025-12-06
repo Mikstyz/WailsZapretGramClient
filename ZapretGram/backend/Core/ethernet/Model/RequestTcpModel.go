@@ -2,7 +2,8 @@ package model
 
 type RequestTcp struct {
 	// request info
-	Action   string      `json:"action"`             //Тип запроса [chat, register, login]
+	Action   string      `json:"action"` //Тип запроса [chat, register, login]
+	Status   string      `json:"status,omitempty"`
 	DateTime string      `json:"datetime,omitempty"` //Время запроса
 	CorrId   string      `json:"correlation_id,omitempty"`
 	Data     interface{} `json:"data,omitempty"` //Нужные нам данные
